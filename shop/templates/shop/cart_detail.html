@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart | HorizenHive{% endblock %}
+
+{% block content %}
+  <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+    <section class="glass-card rounded-3xl p-6 soft-ring">
+      <div class="flex items-end justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <p class="text-sm uppercase tracking-[0.35em] text-hiveAccent">Shopping cart</p>
+          <h2 class="mt-2 text-2xl font-semibold text-white">Your selected products</h2>
+          <p class="mt-2 text-slate-300">Review your items, remove anything you no longer need, and continue shopping.</p>
+        </div>
+        <span class="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-sm text-slate-200">{{ cart|length }} item(s)</span>
+      </div>
+
+      {% if cart %}
+        <div class="mt-6 space-y-4">
+          {% for item in cart %}
+            {% with product=item.product %}
+              <article class="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.35)] md:p-5">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center">
+                  <a href="{{ product.get_absolute_url }}" class="h-24 w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-800/70 md:w-28">
+                    {% if product.image %}
+                      <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover">
+                    {% else %}
+                      <div class="flex h-full items-center justify-center bg-gradient-to-br from-indigo-500/15 to-amber-400/10 text-sm text-slate-300">No image</div>
+                    {% endif %}
+                  </a>
+                  <div class="flex-1">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h3 class="text-lg font-semibold text-white">{{ product.name }}</h3>
+                        <p class="mt-1 text-sm text-slate-300">{{ product.description|truncatewords:18 }}</p>
+                      </div>
+                      <p class="text-lg font-semibold text-amber-300">${{ item.total_price }}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <div class="rounded-full border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-200">Qty: {{ item.quantity }} × ${{ item.price }}</div>
+                      <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="rounded-full border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:bg-rose-500/20">Remove</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mt-6 rounded-3xl border border-dashed border-slate-700 bg-slate-900/70 p-8 text-center">
+          <p class="text-xl font-semibold text-white">Your cart is empty</p>
+          <p class="mt-2 text-slate-300">Browse the shop and add some products to begin your order.</p>
+          <a href="/" class="mt-5 inline-flex rounded-full bg-gradient-to-r from-indigo-400 to-amber-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_10px_30px_rgba(99,102,241,0.25)] hover:brightness-110">Continue shopping</a>
+        </div>
+      {% endif %}
+    </section>
+
+    <aside class="glass-card rounded-3xl p-6 soft-ring">
+      <p class="text-sm uppercase tracking-[0.35em] text-hiveAccent">Order summary</p>
+      <h3 class="mt-2 text-xl font-semibold text-white">Ready to checkout?</h3>
+      <p class="mt-3 text-slate-300">Review totals and proceed when you are ready.</p>
+      <div class="mt-6 space-y-3 rounded-3xl border border-slate-800 bg-slate-900/80 p-4 text-slate-200">
+        <div class="flex items-center justify-between text-sm"><span>Items</span><strong>{{ cart|length }}</strong></div>
+        <div class="flex items-center justify-between text-sm"><span>Subtotal</span><strong>${{ cart.get_total_price }}</strong></div>
+        <div class="flex items-center justify-between text-sm text-slate-300"><span>Shipping</span><strong>Free</strong></div>
+        <div class="border-t border-slate-800 pt-3"></div>
+        <div class="flex items-center justify-between text-base text-white"><span>Total</span><strong>${{ cart.get_total_price }}</strong></div>
+      </div>
+      <a href="/" class="mt-6 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-indigo-400 to-amber-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_10px_30px_rgba(99,102,241,0.25)] hover:brightness-110">Continue shopping</a>
+      <button class="mt-3 w-full rounded-full border border-slate-700 bg-slate-900/80 px-5 py-3 text-sm font-medium text-slate-100 hover:border-indigo-400 hover:bg-slate-800">Proceed to checkout</button>
+    </aside>
+  </div>
+{% endblock %}
